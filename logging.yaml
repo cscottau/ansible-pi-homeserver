@@ -1,0 +1,26 @@
+---
+- name: Configure remote logging
+  hosts: pi
+  vars:
+    service: rsyslog
+    conf_file: /etc/rsyslog.d/qradar.conf
+    logging_ip: 192.168.5.60
+    syslog_port: 514
+    protocol: tcp
+
+  tasks:
+
+  - name: Create the rsyslog configuration for remote logging
+    lineinfile:
+      path: "{{ conf_file }}"
+      line: '*.* action(type="omfwd"  Target="{{ logging_ip }}" Port="{{ syslog_port }}" Protocol="{{ protocol }}")'
+      create: yes
+    notify: Restart logging daemon
+
+  handlers:
+ 
+  - name: Restart logging daemon
+    service:
+      name: "{{ service }}"
+      state: restarted
+

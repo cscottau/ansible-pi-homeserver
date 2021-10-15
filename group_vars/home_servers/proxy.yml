@@ -1,0 +1,4 @@
+# Proxy variables
+proxy_package: squid
+proxy_service: squid
+proxy_port: 8080

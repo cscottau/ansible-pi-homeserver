@@ -1,0 +1,62 @@
+---
+- name: Configure pihole
+  hosts: pi
+
+  tasks:
+
+  - include_tasks: firewall.yaml
+
+  - name: Allow DNS through the firewall
+    firewalld:
+      service: dns
+      state: enabled
+      immediate: yes
+      permanent: yes
+
+  - name: Clone the {{ pihole_package }} repository  
+    ansible.builtin.git:
+      repo: "{{ pihole_git_repo }}"
+      dest: /home/ansible/pi-hole
+
+  - name: Encrypt the web user password
+    shell: "executable=/bin/bash set -o pipefail && true | echo -n {{ pihole_password }} | sha256sum | cut -d' ' -f1 | tr -d '\n' | sha256sum | cut -d' ' -f1"
+    register: encrypted_password
+    changed_when: false
+
+  #- name:
+  #  debug:
+  #    var: encrypted_password.stdout
+
+  - name: Create the vars directory
+    file:
+      path: /etc/pihole
+      state: directory
+      mode: '0755'
+
+  - name: Setup the unattended install var files
+    template:
+      src: setupVars.conf.j2
+      dest: /etc/pihole/setupVars.conf
+      mode: '0644'
+
+  - name: Check to see if {{ pihole_package }} is already installed
+    stat:
+      path: /usr/bin/pihole-FTL
+    register: result
+
+  - name: Install the {{ pihole_package }} 
+    command: "{{ pihole_package }}/automated\\ install/basic-install.sh --unattended -r /tmp/setupVars.conf"
+    register: result
+    when: result is failed
+
+  - name: Set logging to syslog 
+    replace: 
+      path: /etc/dnsmasq.d/01-pihole.conf
+      regexp: log-facility=.*
+      replace: log-facility=local5
+    notify: Restart dnsmasq
+
+  handlers:
+
+  - name: Restart dnsmasq
+    command: pihole restartdns

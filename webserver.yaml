@@ -1,0 +1,114 @@
+---
+- name: Configure webserver on pi
+  hosts: pi
+  vars:
+    web_package: lighttpd
+    web_service: lighttpd
+    SSL_cert_dir: /etc/lighttpd/ssl/spenscot.ddns.net
+  
+  tasks:
+  
+  - include_tasks: firewall.yaml
+
+  - name: Install the {{ web_package }} 
+    package:
+      name: "{{ web_package }}"
+      state: latest
+      
+  - name: Set the {{ web_service }} to auto start
+    service:
+      name: "{{ web_service }}"
+      state: started
+      enabled: yes
+  
+  - name: Create the directory for the virtual host config
+    file:
+      path: /etc/lighttpd/vhosts.d
+      state: directory
+
+  - name: Ensure {{ web_package }} will look in the directory
+    lineinfile:
+      dest: /etc/lighttpd/external.conf
+      line: include_shell "cat /etc/lighttpd/vhosts.d/*.conf"
+    notify: Restart the web server
+
+  - name: Enable mod_ssl for {{ web_package }}
+    lineinfile:
+      dest: /etc/lighttpd/external.conf
+      line: server.modules += ( "mod_openssl" )
+    notify: Restart the web server
+
+  - name: Allow directory browsing
+    lineinfile:
+      dest: /etc/lighttpd/external.conf
+      line: server.dir-listing = "enable"
+    notify: Restart the web server
+
+  - name: Create the symlink for internal (HTTP) access 
+    file:
+      src: /media/cloud/{{ item.src }}
+      dest: /var/www/html/{{ item.dest }}
+      state: link
+    loop:
+      - { src: our-cloud, dest: our-cloud }
+      - { src: photos, dest: photos }
+      - { src: downloads, dest: downloads }
+      - { src: music, dest: music }
+
+  - name: Create the symlink for the photos
+    file:
+      src: /media/cloud/photos
+      dest: /var/www/html/photos
+      state: link
+
+  - name: Create the directory for the self signed directory
+    file:
+      path: "{{ SSL_cert_dir }}"
+      state: directory
+      mode: 0600
+      owner: www-data
+      group: www-data
+
+  - name: Create the self signed certificate
+    command: openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes -subj "/C=AU/ST=ACT/L=Canberra/O=spenscot/CN=spenscot.ddns.net"
+    args:
+      chdir: "{{ SSL_cert_dir }}"
+      creates: "{{ SSL_cert_dir }}/server.pem"
+      
+  - name: Set ownership, group and permissions on the certificate
+    file:
+      path: "{{ SSL_cert_dir }}/server.pem"
+      owner: www-data
+      group: www-data
+      mode: '0600'
+
+  - name: Create the external HTTPS configuration for photos
+    copy:
+      src: files/ssl.conf
+      dest: /etc/lighttpd/vhosts.d/ssl.conf
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Restart the web server
+
+  - name: Allow HTTP through the firewall
+    firewalld:
+      service: http
+      state: enabled
+      immediate: yes
+      permanent: yes
+
+  - name: Allow HTTPS through the firewall
+    firewalld:
+      service: https
+      state: enabled
+      immediate: yes
+      permanent: yes
+
+  handlers:
+  - name: Restart the web server
+    service:
+      name: "{{ web_service }}"
+      state: restarted
+
+

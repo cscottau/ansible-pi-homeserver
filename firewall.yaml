@@ -1,0 +1,11 @@
+  - name: Ensure the {{ firewall_package }} is installed
+    package:
+      name: "{{ firewall_package }}"
+      state: present
+
+  - name: Ensure the {{ firewall_package }} is enabled and started
+    service:
+      name: "{{ firewall_package }}"
+      state: started
+      enabled: yes
+

@@ -1,0 +1,11 @@
+# pih\ole vars
+pihole_git_repo: https://github.com/pi-hole/pi-hole.git
+pihole_package: pi-hole
+#pihole_web_service: lighttpd
+pihole_interface: eth0
+pihole_ipv4_cidr: 192.168.5.80/24
+pihole_ipv6_cidr: 
+pihole_dns1: 192.168.5.1
+pihole_dns2:
+pihole_dns3:
+pihole_dns4:

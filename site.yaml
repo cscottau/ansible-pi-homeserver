@@ -1,0 +1,9 @@
+---
+- import_playbook: cloud-device.yaml
+- import_playbook: cloud-firewall.yaml
+- import_playbook: cloud-smb.yaml
+- import_playbook: pihole.yaml
+- import_playbook: photos.yaml
+- import_playbook: webserver.yaml
+- import_playbook: webproxy.yaml
+        

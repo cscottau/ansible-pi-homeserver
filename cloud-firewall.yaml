@@ -1,0 +1,14 @@
+---
+- hosts: pi
+
+  tasks:
+  - include_tasks: firewall.yaml
+
+  - name: Allow samba through the firewall
+    firewalld:
+      service: samba
+      state: enabled
+      immediate: yes
+      permanent: yes
+
+

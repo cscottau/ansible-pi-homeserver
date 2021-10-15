@@ -1,0 +1,39 @@
+---
+- name: Configure cloud
+  hosts: pi
+  
+  tasks:
+
+  - name: Create the {{ cloud_group }} group
+    group:
+      name: "{{ cloud_group }}"
+      state: present
+
+  - name: Create the {{ cloud_user }} user
+    user:
+      name: "{{ cloud_user }}"
+      group: "{{ cloud_group }}"
+      state: present
+
+  - name: Create the {{ cloud_mount }} mountpoint
+    file:
+      path: "{{ cloud_mount }}" 
+      state: directory 
+      mode: "0777"
+
+  - name: Mount {{ cloud_partition }}
+    mount:
+      path: "{{ cloud_mount }}"
+      src: "{{ cloud_partition }}"
+      fstype: ntfs
+      state: mounted
+      
+#  - name: Set ownership on the cloud filesystem
+#    file:
+#      name: "{{ cloud_mount }}"
+#      owner: "{{ cloud_user }}"
+#      group: "{{ cloud_group }}"
+#      mode: u=rwX,g=rwX,o=rX
+#      recurse: yes
+
+        

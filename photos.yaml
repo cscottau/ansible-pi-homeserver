@@ -1,0 +1,31 @@
+---
+- name: Configure photos app on pi
+  hosts: pi
+  vars:
+    photo_url: http://sye.dk/sfpg/
+    photo_package: Single_File_PHP_Gallery_4.7.1.zip
+    php_gd_package: php7.3-gd
+    web_service: lighttpd
+  
+  tasks:
+  
+  - name: Download and unarchive {{ photo_package }}
+    unarchive:
+      src: "{{ photo_url}}{{ photo_package }}"
+      dest: /media/cloud/photos
+      remote_src: yes
+
+  - name: Ensure PHP is installed
+    package:
+      name: php
+      state: latest
+
+  - name: Ensure the PHP GD library (php_gd) is installed
+    package:
+      name: "{{ php_gd_package }}"
+      state: latest
+      
+  - name: Make required changes to {{ web_service }}
+    debug:
+      msg: todo
+        
