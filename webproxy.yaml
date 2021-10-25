@@ -6,12 +6,12 @@
   
   - include_tasks: firewall.yaml
 
-  - name: Install the {{ proxy_package }} 
+  - name: Install the {{ proxy_package }} package
     package: 
       name: squid
       state: present
       
-  - name: Make required changes to {{ proxy_service }}
+  - name: Copy the {{ proxy_service }} config file
     copy:
       src: files/squid.blurdle.conf
       dest: /etc/squid/conf.d/blurdle.conf
