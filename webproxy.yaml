@@ -1,24 +1,21 @@
 ---
 - name: Configure web proxy on pi
   hosts: pi
-  vars:
-    proxy_package: squid
-    proxy_service: squid
-    proxy_port: 8080
-  
+
   tasks:
   
   - include_tasks: firewall.yaml
 
-  - name: Install the {{ proxy_package }} 
+  - name: Install the {{ proxy_package }} package
     package: 
       name: squid
-      state: latest
+      state: present
       
-  - name: Make required changes to {{ proxy_service }}
+  - name: Copy the {{ proxy_service }} config file
     copy:
       src: files/squid.blurdle.conf
       dest: /etc/squid/conf.d/blurdle.conf
+      mode: "0600"
     notify: Restart Proxy
     
   - name: Open firewall port

@@ -1,10 +1,6 @@
 ---
 - name: Configure webserver on pi
   hosts: pi
-  vars:
-    web_package: lighttpd
-    web_service: lighttpd
-    SSL_cert_dir: /etc/lighttpd/ssl/spenscot.ddns.net
   
   tasks:
   
@@ -13,7 +9,7 @@
   - name: Install the {{ web_package }} 
     package:
       name: "{{ web_package }}"
-      state: latest
+      state: present
       
   - name: Set the {{ web_service }} to auto start
     service:
@@ -24,24 +20,28 @@
   - name: Create the directory for the virtual host config
     file:
       path: /etc/lighttpd/vhosts.d
+      mode: "0700"
       state: directory
 
   - name: Ensure {{ web_package }} will look in the directory
     lineinfile:
       dest: /etc/lighttpd/external.conf
       line: include_shell "cat /etc/lighttpd/vhosts.d/*.conf"
+      mode: "0600"
     notify: Restart the web server
 
   - name: Enable mod_ssl for {{ web_package }}
     lineinfile:
       dest: /etc/lighttpd/external.conf
       line: server.modules += ( "mod_openssl" )
+      mode: "0600"
     notify: Restart the web server
 
   - name: Allow directory browsing
     lineinfile:
       dest: /etc/lighttpd/external.conf
       line: server.dir-listing = "enable"
+      mode: "0600"      
     notify: Restart the web server
 
   - name: Create the symlink for internal (HTTP) access 
@@ -55,17 +55,11 @@
       - { src: downloads, dest: downloads }
       - { src: music, dest: music }
 
-  - name: Create the symlink for the photos
-    file:
-      src: /media/cloud/photos
-      dest: /var/www/html/photos
-      state: link
-
   - name: Create the directory for the self signed directory
     file:
       path: "{{ SSL_cert_dir }}"
       state: directory
-      mode: 0600
+      mode: "0600"
       owner: www-data
       group: www-data
 
@@ -90,6 +84,22 @@
       group: root
       mode: '0644'
     notify: Restart the web server
+
+  - name: Unpack the CSS directory ZIP
+    ansible.builtin.unarchive:
+      src: files/home-css.zip
+      dest: /var/www/html/
+      copy: yes
+      owner: root
+      group: root
+  
+  - name: Copy over the index page
+    copy:
+      src: files/index.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: '0644'
 
   - name: Allow HTTP through the firewall
     firewalld:
