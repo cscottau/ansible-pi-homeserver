@@ -1,0 +1,5 @@
+# vars for the SFPG photos PHP app
+photo_url: http://sye.dk/sfpg/
+photo_package: Single_File_PHP_Gallery_4.8.0.zip
+php_gd_package: php7.3-gd
+web_service: lighttpd
