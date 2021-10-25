@@ -1,0 +1,4 @@
+# Web server vars
+web_package: lighttpd
+web_service: lighttpd
+SSL_cert_dir: /etc/lighttpd/ssl/spenscot.ddns.net
