@@ -10,6 +10,13 @@
       dest: /media/cloud/photos
       remote_src: yes
 
+  - name: Change ownership on the index.php
+    file:
+      path: /media/cloud/photos/index.php
+      owner: spenscot
+      group: cloud
+      mode: 0644
+
   - name: Ensure PHP is installed
     package:
       name: php
