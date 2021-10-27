@@ -1,6 +1,4 @@
-all:
-  children:
-    home_servers:
-      hosts:
-        pi:
-          ansible_host: 192.168.5.80
+home_servers:
+  hosts:
+    pi:
+      ansible_host: 192.168.5.80

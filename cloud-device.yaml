@@ -15,25 +15,40 @@
       group: "{{ cloud_group }}"
       state: present
 
-  - name: Create the {{ cloud_mount }} mountpoint
+  - name: Create the {{ cloud_mount_point }} mountpoint
     file:
-      path: "{{ cloud_mount }}" 
+      path: "{{ cloud_mount_point }}" 
       state: directory 
       mode: "0777"
 
-  - name: Mount {{ cloud_partition }}
+  # Unable to work out how to open an existing crypto volume with the community.crypto module
+  - name: Open the encrypted partition - {{ cloud_partition_name }}
+    command: "cryptsetup open {{ cloud_device }} {{ cloud_partition_name }} --key-file {{ cloud_partition_keyfile }}"
+    register: output
+    ignore_errors: yes
+
+  - name: Check for cryptsetup failures other than device exists
+    fail: msg="{{ output.stdout }}"
+    when: "output.rc != 0 and 'Device ourcloud already exists.' not in output.stderr"
+
+  - name: Create the crypttab file
+    lineinfile:
+      line: "{{ cloud_partition_name }}    {{ cloud_device }}    {{ cloud_partition_keyfile }}"
+      path: /etc/crypttab
+
+  - name: Mount the encrypted partition - {{ cloud_partition_name }}
     mount:
-      path: "{{ cloud_mount }}"
-      src: "{{ cloud_partition }}"
-      fstype: ntfs
+      path: "{{ cloud_mount_point }}"
+      src: "/dev/mapper/{{ cloud_partition_name }}"
+      fstype: ext4
       state: mounted
       
-#  - name: Set ownership on the cloud filesystem
-#    file:
-#      name: "{{ cloud_mount }}"
-#      owner: "{{ cloud_user }}"
-#      group: "{{ cloud_group }}"
-#      mode: u=rwX,g=rwX,o=rX
-#      recurse: yes
+  - name: Set ownership on the cloud filesystem
+    file:
+      name: "{{ cloud_mount_point }}"
+      owner: "{{ cloud_user }}"
+      group: "{{ cloud_group }}"
+      mode: u=rwX,g=rwX,o=rX
+      recurse: yes
 
         

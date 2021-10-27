@@ -1,6 +1,8 @@
 # Cloud/NAS variables
-cloud_partition: /dev/sda1
-cloud_mount: /media/cloud
+cloud_device: /dev/sda1
+cloud_partition_name: ourcloud
+cloud_partition_keyfile: /root/cloudkey
+cloud_mount_point: /media/cloud
 cloud_group: cloud
 cloud_user: spenscot
 
