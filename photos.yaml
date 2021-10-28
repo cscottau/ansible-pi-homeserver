@@ -14,7 +14,7 @@
     lineinfile:
       path: /media/cloud/photos/index.php
       regex: "\tdefine('SECURITY_PHRASE', '');"
-      line: "\tdefine('SECURITY_PHRASE', '{{ lookup('community.general.random_string', length=20) }}');"
+      line: "\tdefine('SECURITY_PHRASE', '{{ lookup('random_string', length=20) }}');"
 
   - name: Ensure PHP is installed
     package:
