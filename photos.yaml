@@ -13,8 +13,8 @@
   - name: Generate security phrase
     lineinfile:
       path: /media/cloud/photos/index.php
-      regex: "\tdefine('SECURITY_PHRASE', '');"
-      line: "\tdefine('SECURITY_PHRASE', '{{ lookup('pipe','echo $RANDOM | md5sum | head -c 25') }}');"
+      regex: ".*define('SECURITY_PHRASE', '');"
+      line: "        define('SECURITY_PHRASE', '{{ lookup('pipe','echo $RANDOM | md5sum | head -c 25') }}');"
 
   - name: Ensure PHP is installed
     package:
