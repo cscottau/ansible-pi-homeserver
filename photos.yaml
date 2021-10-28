@@ -10,12 +10,6 @@
       dest: /media/cloud/photos
       remote_src: yes
 
-  - name: Generate security phrase
-    lineinfile:
-      path: /media/cloud/photos/index.php
-      regex: ".*define('SECURITY_PHRASE', '');"
-      line: "        define('SECURITY_PHRASE', '{{ lookup('pipe','echo $RANDOM | md5sum | head -c 25') }}');"
-
   - name: Ensure PHP is installed
     package:
       name: php
@@ -26,3 +20,18 @@
       name: "{{ php_gd_package }}"
       state: present
       
+  - name: Set permissions to allow auto generation of security phrase
+    file:
+      path: /media/cloud/photos/index.php
+      mode: 0777
+      
+  - name: Auto generate security phrase
+    uri:
+      url: http://localhost/photos/index.php
+
+  - name: Set permissions to protect the application
+    file:
+      path: /media/cloud/photos/index.php
+      mode: 0444
+      
+
