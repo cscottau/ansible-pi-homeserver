@@ -34,4 +34,8 @@
       path: /media/cloud/photos/index.php
       mode: 0444
       
-
+  - name: Set permissions to allow the application to create the data directory
+    file:
+      path: /media/cloud/photos
+      owner: www-data
+      
