@@ -1,0 +1,12 @@
+---
+- name: General config settings for the OS (etc)
+  hosts: pi
+
+  tasks:
+
+  - name: Set the fs.inotify.max_user_watches to {{ general_fs_inotify_max_user_watches }}
+    lineinfile:
+      line: fs.inotify.max_user_watches={{ general_fs_inotify_max_user_watches }}
+      path: /etc/sysctl.conf
+      state: present
+      regexp: '^fs.inotify.max_user_watches='

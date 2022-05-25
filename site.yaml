@@ -1,4 +1,5 @@
 ---
+- import_playbook: general-config.yaml
 - import_playbook: cloud-device.yaml
 - import_playbook: cloud-firewall.yaml
 - import_playbook: cloud-smb.yaml
