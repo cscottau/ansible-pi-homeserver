@@ -49,11 +49,20 @@
     register: result
     when: result is failed
 
-  - name: Set logging to syslog 
+  - name: Set  gcket size for upstream DNS server
     replace: 
       path: /etc/dnsmasq.d/01-pihole.conf
       regexp: log-facility=.*
       replace: log-facility=local5
+    notify: Restart dnsmasq
+
+  - name: Set logging to syslog 
+    lineinfile: 
+      path: /etc/dnsmasq.d/99-edns.conf
+      state: present
+      regexp: '^edns-packet-max='
+      line: edns-packet-max={{ edns_packet_max }}
+      create: yes
     notify: Restart dnsmasq
 
   handlers:
