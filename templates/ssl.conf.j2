@@ -1,5 +1,6 @@
 $SERVER["socket"] == "192.168.5.80:443" {
 server.document-root = "/media/cloud/photos"
 ssl.engine = "enable"
-ssl.pemfile = "/etc/lighttpd/ssl/spenscot.ddns.net/server.pem"
+ssl.pemfile = "{{ SSL_cert_dir }}/{{ SSL_cert_name }}"
+ssl.ca-file = "{{ SSL_cert_dir }}/{{ SSL_CA_name }}"
 }

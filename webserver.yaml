@@ -55,7 +55,7 @@
       - { src: downloads, dest: downloads }
       - { src: music, dest: music }
 
-  - name: Create the directory for the self signed directory
+  - name: Create the directory for the ssl certificate
     file:
       path: "{{ SSL_cert_dir }}"
       state: directory
@@ -63,22 +63,32 @@
       owner: www-data
       group: www-data
 
-  - name: Create the self signed certificate
-    command: openssl req -new -x509 -keyout server.pem -out server.pem -days 365 -nodes -subj "/C=AU/ST=ACT/L=Canberra/O=spenscot/CN=spenscot.ddns.net"
-    args:
-      chdir: "{{ SSL_cert_dir }}"
-      creates: "{{ SSL_cert_dir }}/server.pem"
-      
+  - name: Install the CA certificates from noip, see /home/cloud/pip/pi/spenscot.ssl.readme
+    copy: 
+      src: "{{ SSL_cert_source }}/{{ SSL_CA_name }}"
+      dest: "{{ SSL_cert_dir }}/{{ SSL_CA_name }}"
+      remote_src: yes
+      owner: root
+      group: root
+
+  - name: Install the ssl key and certificate from noip at /media/cloud/pi/pi/spenscot.pem-chain, see /media/cloud/pi/pi/spenscot.ssl.readme
+    copy: 
+      src: "{{ SSL_cert_source }}/{{ SSL_cert_name }}"
+      dest: "{{ SSL_cert_dir }}/{{ SSL_cert_name }}"
+      remote_src: yes
+      owner: root
+      group: root
+
   - name: Set ownership, group and permissions on the certificate
     file:
-      path: "{{ SSL_cert_dir }}/server.pem"
+      path: "{{ SSL_cert_dir }}/{{ SSL_cert_name }}"
       owner: www-data
       group: www-data
       mode: '0600'
 
   - name: Create the external HTTPS configuration for photos
-    copy:
-      src: files/ssl.conf
+    template:
+      src: ssl.conf.j2
       dest: /etc/lighttpd/vhosts.d/ssl.conf
       owner: root
       group: root

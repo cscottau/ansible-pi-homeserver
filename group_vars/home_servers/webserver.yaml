@@ -2,3 +2,6 @@
 web_package: lighttpd
 web_service: lighttpd
 SSL_cert_dir: /etc/lighttpd/ssl/spenscot.ddns.net
+SSL_cert_source: /media/cloud/pi/pi
+SSL_cert_name: spenscot_ddns_net.pem
+SSL_CA_name: digicor_int_ca.crt
