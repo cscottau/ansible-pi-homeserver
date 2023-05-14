@@ -1,1 +1,2 @@
 roles/*/*
+group_vars/home_servers/secrets.yaml
