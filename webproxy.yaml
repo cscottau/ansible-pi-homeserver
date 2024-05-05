@@ -8,7 +8,7 @@
 
   - name: Install the {{ proxy_package }} package
     package: 
-      name: squid
+      name: "{{ proxy_package }}"
       state: present
       
   - name: Copy the {{ proxy_service }} config file
