@@ -1,4 +1,4 @@
 home_servers:
   hosts:
     pi:
-      ansible_host: 192.168.5.80
+      ansible_host: 192.168.6.80
